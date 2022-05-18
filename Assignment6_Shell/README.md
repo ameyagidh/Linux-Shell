@@ -2,12 +2,6 @@
 
 - Name: Ameya Santosh Gidh
 - How many hours did it take you to complete this assignment?4
-- Did you collaborate with any other students/TAs/Professors?yes TA
-- Did you use any external resources? (Cite them below)
-  - youtube videos and lots of google search
-  - tbd
-- (Optional) What was your favorite part of the assignment?
-- (Optional) How would you improve the assignment?
 
 # Logistics
 
