@@ -373,7 +373,7 @@ void echo(char** inputCommand, char** commandArray){
 
 // help function
 void help(char** inputCommand, char** commandArray){
-    printf("Yutong He's Mini Shell\n");
+    printf("Ameya's Mini Shell\n");
     printf("Here is the list of the built-in commands:\n");
     int i;
     // Exclude the pipe command from the commandArray
@@ -390,7 +390,7 @@ void pwd(char** inputCommand, char** commandArray){
 
 // history function
 void printHistory(queue_t* historyQ){
-    printf("Yutong He's Mini Shell\n");
+    printf("Ameya's Mini Shell\n");
     printf("Here is the history of the commands the user typed in:\n");
     int i=0;
     node_t* temp=historyQ->front;
