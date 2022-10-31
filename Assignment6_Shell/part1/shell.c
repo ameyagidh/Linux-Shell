@@ -1,228 +1,411 @@
-
+// Ameya Santosh Gidh
+#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
 #include <string.h>
-#include <ctype.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
 #include <sys/wait.h>
-#include <time.h>
-
-#define MAX_BUFFER_SIZE 80
-
-void sigint_handler(int sig){	
-	write(1,"\n shell1 ended\n",23);
-	exit(0);
-}
-
-int cd_command(char **args) {
-
-	if (args[1] == NULL) {
-    		fprintf(stderr, "No argument for \"cd\"\n");
-  	} else {
-    		if (chdir(args[1]) != 0) {
-      			perror("Eror");
-    		}
-  	}
-  	return 1;
-}
-
-
-int findPipe(char** arg) {
-        int i = 0;
-        while(arg[i] != NULL) {
-       		if (strcmp(arg[i], "|") == 0) {
-	   		return i;
-        	}
-        	i ++;
-    	}
-   	return -1;
-}
-
-char** prePipe(char** arg) {
-  	int index = findPipe(arg); 
-  	char** result = malloc(sizeof(char*) * 20); 
-  	int i;
-  	while(i<index) {
-		result[i] = arg[i];
-		i++;
-  	}
-  	return result;
-}
-
-
-char** postPipe(char** arg) {
- 	int index = findPipe(arg); 
-  	char** result = malloc(sizeof(char*) * 20);
-  	int i = index+1;
-  	int j = 0;
-
-  	while(arg[i] != NULL) {
-		result[j] = arg[i];
-		i++;
-		j++;
-  	}	
-  	return result;
-}
-
-void executePipedCommand(char** arg1, char** arg2) {
-
-	int fd[2];
-
-	pid_t id;   
-
-    	id = fork();
-    	if (id == -1) {
-        	printf("Fork failure\n");
-       	 	exit(EXIT_FAILURE);
-    	}else if (id == 0) {
-		pipe(fd);
-		if(fork() == 0) {
-		    close(fd[0]);
-		    dup2(fd[1], 1);	
-		    execvp(arg1[0], arg1);
-	            printf("Did not execute\n");
-        	    exit(0);
-	} 
-        wait(NULL);
-	close(fd[1]);
-	dup2(fd[0], 0);
-	execvp(arg2[0], arg2);
-   	printf("Did not execute\n");
-	exit(0);
-	}
-	wait(NULL);
-}
-
-
-void executeCommand(char* myargv[]) {
-	int fd[2];
-
-  	if (pipe(fd) == -1) {
-        	printf("Pipe creation failure\n");
-        	exit(EXIT_FAILURE);
-   	}
-	
-	pid_t id;   
-    	id = fork();
-    	if (id == -1) {
-        	printf("Fork failed\n");
-       	 	exit(EXIT_FAILURE);
-    	}
-
-    	if (id == 0) {
-
-        	close(fd[0]);
-        	close(fd[1]);
-		execvp(myargv[0], myargv);
-		printf("Command not found\n");
-		exit(0);
-   	} else {
-        	wait(NULL);
-		close(fd[1]);
-        	close(fd[0]);
-    	}
-}
-
-int guessingGame() {
-     	srand(time(NULL));
-    	int randomNumber = rand() % 10 + 1;
-    
-   	printf("===============================\n");
-    	printf("CPU Says: Pick a number 1-10\n");
-    	printf("===============================\n");
-    
-    	int userGuess;
-    	int count = 0;
-    	int i;
-   
-    	for(i = 0; i < 5; i++){
-        	printf("Make a guess: ");
-        	scanf("%d", &userGuess);
-        	count ++;
-        	if(userGuess < randomNumber){
-            		printf("No, Guess higher!\n");
-            		if(i == 4){
-                		printf("You lost the game.\n");
-            		}
-        	}else if(userGuess > randomNumber){
-           		printf("No, Guess lower!\n");
-            		if(i == 4){
-                		printf("You lost the game.\n");
-            		}
-        	}else if(userGuess == randomNumber){
-            		printf("You got it!\n");
-            		break;
-        	}
-    	}
-	getchar();
-    	return 1;  
-}
-
-
-void help_command() {
-	printf("Mini-shell \n");
-	printf("Type a program name and arguments \n");
-	printf("Built -in commands are: \n");
-	printf("help\ncd\nexit\nguessinggame\n");
-}
-
-char** readCommand (char* line) {
-	int i = 0;
-	char **array = malloc(MAX_BUFFER_SIZE * sizeof(char*));
-  	char** arg1;
-  	char** arg2;
-	if(!array) {
-      		exit(EXIT_FAILURE);
-    	}
-
-    	char *p = strtok (line, " ");
-    	while (p != NULL){
-        	array[i] = p;
-        	p = strtok(NULL, " \n");
-        	i++;
-    	}
-    	char* path = strtok(array[i-1], "\n");
-    	array[i-1] = path;
-    	array[i] = NULL;
-
-    	if((strcmp(array[0], "exit") == 0) && (array[1] == NULL))  {
-		free(array);
-		exit(0);
-	} else if((strcmp(array[0], "help") == 0) && (array[1] == NULL)) {
-	  	help_command();
-	} else if ((strcmp(array[0], "cd") == 0) && (array[2] == NULL)) {
-	  	cd_command(array);
-	} else if ((strcmp(array[0], "guessinggame") == 0) && (array[1] == NULL))  {
-		guessingGame();
-	} else {
-int index = findPipe(array);
-    		if (index != -1) {
-      			arg1 = prePipe(array);
-      			arg2 = postPipe(array);
-      			executePipedCommand(arg1, arg2);
-      	        	free(arg1);
-      	        	free(arg2);
-    		} else {
-      			executeCommand(array);   
-   	
-	 	}   
-   	}
-	return array;
-}
 
 int main(){
+  alarm(180); 
+  // We Initialize history here.
+  queue_t* historyQ=createQueue();
+   // We set input string array
+  char line[BUFFER_SIZE];
 
-	char line[MAX_BUFFER_SIZE];
-	printf("You can only terminate by pressing Ctrl+C\n");
-	char** array;
-	while(1){
-		printf("mini-shell >> ");
-fgets(line, MAX_BUFFER_SIZE, stdin);
-      		char* command = line;
-      		array = readCommand(command);
-		memset(line, 0, MAX_BUFFER_SIZE);
-		free(array);
-	}
-	return 0;
+  // We store all the commands here
+  // Indexes 4, 5, 6 show the special function call commands
+  char* commandArray[]={"cd", "echo", "help", "pwd", "history", "exit", "|"};
+  
+  // Initialize an array of built-in command function pointers 
+  void (*commandPfnArray[COMMAND_NUM-1])(char** inputCommand, 
+  char** commandArray)={&cd, &echo, &help, &pwd};
+  // Signal Handler 
+  signal(SIGINT, sigint_handler); 
+	
+  while(1){
+      // Input command and make the shell ready for the next command
+      char** inputCommand=createArray();
+      reset(line);
+      // Input user command	  
+      readLine(line, historyQ);  
+      // -1 if command execution fails else returns the command
+      int task=isCommand(line, commandArray);
+      // Built-in command is called
+      int commandCount = parseLine(line, inputCommand); 
+      if(task >= 0 && task < 4){ 
+          commandPfnArray[task](inputCommand, commandArray);
+      }
+      else if(4==task){ 
+	// history command
+        printHistory(historyQ);
+      }
+      else if(5==task){ 
+          // exit command
+          freeArray(inputCommand);
+          break;
+      }
+      else if(6==task){ 
+	   // Pipe command 
+           char pipeLeft[COMMAND_NUM][BUFFER_SIZE];
+          char pipeRight[COMMAND_NUM][BUFFER_SIZE];
+          // Store the actual number of commands at each side of the pipe
+          int pipeSize[2];  
+          parsePipe(inputCommand, pipeLeft, pipeRight, pipeSize);
+          executePipeCommand(pipeLeft, pipeRight, pipeSize); 
+      }
+      // Next command is called
+      else{
+          executeCommand(inputCommand, commandCount); 
+      }
+      freeArray(inputCommand);
+  }
+  // Free Up Memory
+  freeQueue(historyQ);
+  return 0;
+}
+
+// Creating a queue dataStructure
+queue_t* createQueue(){
+    queue_t* queue = (queue_t*)malloc(sizeof(queue_t));
+    // Initialize the fields of queue_t 
+    queue->back = NULL;
+    queue->front = NULL;
+    queue->size = 0;
+    return queue;    
+}
+
+// Enqueue a new command
+void queueEnqueue(queue_t* q, char* item){
+    // Dequeue the oldest record if the q is full
+    if(q->size == BUFFER_SIZE){
+        queueDequeue(q);
+    }
+    node_t* newNode=(node_t*)malloc(sizeof(node_t));
+    newNode->line = (char*)malloc(sizeof(char)*BUFFER_SIZE);
+    // Copy the item to the newNode 
+    strcpy(newNode->line, item);
+    newNode->next=NULL;
+    // If q is empty, update the head
+    if(q->size==0){
+        q->front=newNode;
+        q->back=newNode; 
+    }else{
+        q->back->next=newNode;
+        q->back=newNode; 
+    }
+    // Update the size of q
+    (q->size)++;
+}
+
+char* queueDequeue(queue_t* q){
+    if(q->size != 0){
+       // Dequeue an item
+        char* item=(char*)malloc(sizeof(char)*BUFFER_SIZE);
+        strcpy(item, q->front->line);
+        node_t* temp;
+        temp=q->front;
+        q->front=q->front->next;
+        if(q->size==1){
+            q->back=NULL;    
+        }
+        // Update the new front position
+        // Update q size
+        (q->size)--;
+        // Free the dequeued item's line and node memory
+        free(temp->line);
+        free(temp);
+        return item;
+    }
+    return NULL;
+}
+
+void freeQueue(queue_t* q){
+    int i;
+    node_t* iter=q->front;
+    while(iter!=NULL){
+        node_t* temp=iter;
+        iter=iter->next;
+        free(temp->line);
+        free(temp);
+    }
+    free(q);
+}
+
+// Malloc memory function for inputCommand array
+char** createArray(){
+    char** buffer;
+    buffer=(char**)malloc(sizeof(char*)*BUFFER_SIZE);
+    int i;
+    for(i=0; i<BUFFER_SIZE; i++){
+        buffer[i]=(char*)malloc(sizeof(char)*BUFFER_SIZE);
+        strcpy(buffer[i], "\0");
+    }
+    return buffer; 
+}
+// Prints error if the shell fails to recognize meaning of the givenn input.
+void printError(){
+    printf("mini-shell>Command not found--Did you mean something else?\n");
+}
+
+// Create a signal handler to interrupt
+void sigint_handler(int sig){
+    write(1, "\nmini-shell terminated\n", 23);
+    exit(0);
+}
+
+// Read in the command line input
+int readLine(char* line, queue_t* historyQ){
+    printf("mini-shell>");
+    fgets(line, BUFFER_SIZE, stdin);
+    // Update the history queue
+    queueEnqueue(historyQ, line);
+}
+
+// Search the input command in the command collection
+int isCommand(char* line, char** commandArray){
+    // Check if contains pipe sign 
+    if(0!=strstr(line, commandArray[6])){
+        return 6;
+    }
+    int i;
+    char copy[BUFFER_SIZE];
+    for(i=0; i<COMMAND_NUM-1; i++){
+        // Check if the line contains the valid command, 
+        // if so, return the index in commandArray
+        strcpy(copy, commandArray[i]);
+        strcat(copy, "\n");
+        int result = strcmp(line, copy);
+        // Check if the substring is a valid command wrapped without other letters
+        if(result != 0){
+            char copySpace[BUFFER_SIZE];
+            strcpy(copySpace, commandArray[i]);
+            strcat(copySpace, " ");
+            if(strstr(line, copySpace) != NULL){ 
+                return i;
+            }
+        }
+        else if(result == 0){
+            return i; 
+        }
+    }
+    return -1;
+}
+
+// Reset collections for the new loop
+void reset(char* line){
+    // Reset line 
+    int i;
+    for(i=0; i<BUFFER_SIZE; i++){
+        line[i]='\0';
+    }
+}
+
+// Parse the valid command line input into words
+int parseLine(char* line, char** inputCommand){
+    char copy[BUFFER_SIZE];
+    strcpy(copy, line);
+    int count=0;
+    // Assign correspinding delimiter based on whether the line has | 
+    char delimiter[3]; 
+    if(NULL==strchr(copy, '|')){
+        delimiter[0]='\n';
+        delimiter[1]=' ';
+        delimiter[2]='\0';
+    }else{
+        delimiter[0]='\n';
+        delimiter[1]='|';
+        delimiter[2]='\0';
+    }
+    // Split the line using the delimiter 
+    char* word=strtok(copy, delimiter);
+    while(NULL!=word){
+        strcpy(inputCommand[count], word);
+        count++;
+        word=strtok(NULL, delimiter);
+    }
+    return count;
+}
+
+// Parse the pipe commands
+void parsePipe(char** inputCommand, char(*pipeLeft)[BUFFER_SIZE], 
+char(*pipeRight)[BUFFER_SIZE], int* pipeSize){ 
+    // Clear pipeLeft, pipeRight, and pipeSize
+    int i;
+    for(i=0; i<COMMAND_NUM; i++){
+        strcpy(pipeLeft[i], "\0");
+        strcpy(pipeRight[i], "\0");
+    }
+    pipeSize[0]=0;
+    pipeSize[1]=0;
+    // Store commands to pipeLeft and pipeRight from inputCommand strings
+    char left[BUFFER_SIZE];
+    char right[BUFFER_SIZE];
+    strcpy(left, inputCommand[0]);
+    strcpy(right, inputCommand[1]);
+    int count=0;
+    char* delimiter=" \n";
+    char* wordLeft=strtok(left, delimiter);
+    while(NULL!=wordLeft){ // split and store the left arguments
+        strcpy(pipeLeft[count], wordLeft);
+        count++;
+        wordLeft=strtok(NULL, delimiter);
+    }
+    pipeSize[0]=count;
+    count=0;
+    char* wordRight=strtok(right, delimiter);
+    while(NULL!=wordRight){ // split and store the right arguments
+        strcpy(pipeRight[count], wordRight);
+        count++;
+        wordRight=strtok(NULL, delimiter);
+    } 
+    pipeSize[1]=count;
+}
+
+// Execute commands
+void executeCommand(char** inputCommand, int commandCount){
+    // Store the child process id
+    pid_t childId;
+    // Create a fork
+    childId=fork();
+    // Check if the fork is successfully created
+    if(-1==childId){
+        printError(); 
+        exit(1);
+    }
+    if(0==childId){
+        char* argv[commandCount+1];
+        int i;
+        for(i=0; i<commandCount; i++){
+            argv[i]=inputCommand[i];
+        }
+        argv[commandCount]=NULL;
+        if(-1==execvp(argv[0], argv)){
+            printError();
+            exit(1);
+        }
+    }else{
+        wait(NULL);
+    }
+}
+
+// Execute pipe commands
+int executePipeCommand(char(*pipeLeft)[BUFFER_SIZE], 
+char(*pipeRight)[BUFFER_SIZE], int* pipeSize){
+    int fd[2]; 
+    pipe(fd);
+    pid_t child1Pid, child2Pid; // Store the child process id 
+    int child1_status, child2_status; 
+    child1Pid=fork(); // Create the first fork
+    if(-1==child1Pid){
+        printError();
+        exit(1);
+    }
+    if(0==child1Pid){ // Child process for the left side argument
+        dup2(fd[1], 1); // Duplicate fd[1] to STDOUT
+        close(fd[0]);
+        close(fd[1]);
+        int size=pipeSize[0];
+        char* argv[size+1];
+        int i;
+        for(i=0; i<size; i++){
+            argv[i]=pipeLeft[i];
+        }
+        argv[size]=NULL;
+        if(-1==execvp(argv[0], argv)){
+            printError();
+            exit(1);
+        }
+    }else{ // Parent process
+        child2Pid=fork(); // Create another fork
+        if(-1==child2Pid){ // Check if the child is successfully created
+            printError();
+            exit(1);
+        }
+        if(0==child2Pid){ // child process for the right side of pipe
+            dup2(fd[0], 0);
+            close(fd[1]);
+            close(fd[0]);     
+            int size=pipeSize[1];
+            char* argv[size+1];
+            int i;
+            for(i=0; i<size; i++){
+                argv[i]=pipeRight[i];
+            }
+            argv[size]=NULL;
+            if(-1==execvp(argv[0], argv)){
+                printError(); 
+                exit(1);
+            }
+        }
+    }
+    close(fd[0]); // Close file descriptors 
+    close(fd[1]);
+    waitpid(child1Pid, &child1_status, 0);
+    waitpid(child2Pid, &child2_status, 0);
+    return 0;        
+}
+
+// cd function
+void cd(char** inputCommand, char** commandArray){
+   chdir(inputCommand[1]);    
+   pwd(inputCommand, commandArray);
+}
+
+// echo function
+void echo(char** inputCommand, char** commandArray){
+    char* blank="\n";
+    if(inputCommand[1]=="\0"){
+        printf("%s", blank);
+    }else{
+        int i;
+        for(i=1; i<BUFFER_SIZE; i++){
+            if(inputCommand[i][0]=='\0'){
+                break;
+            }
+            printf("%s ", inputCommand[i]);
+        }
+    }
+    printf("\n");
+}
+
+// help function
+void help(char** inputCommand, char** commandArray){
+    printf("Yutong He's Mini Shell\n");
+    printf("Here is the list of the built-in commands:\n");
+    int i;
+    // Exclude the pipe command from the commandArray
+    for(i=0; i<COMMAND_NUM-1; i++){
+        printf(">%s\n", commandArray[i]);
+    }
+}
+
+// pwd function
+void pwd(char** inputCommand, char** commandArray){
+    char buff[BUFFER_SIZE];
+    printf("%s\n", getcwd(buff, BUFFER_SIZE)); 
+}
+
+// history function
+void printHistory(queue_t* historyQ){
+    printf("Yutong He's Mini Shell\n");
+    printf("Here is the history of the commands the user typed in:\n");
+    int i=0;
+    node_t* temp=historyQ->front;
+    while(temp!=NULL){
+        printf("%d %s", i, temp->line);
+        i++;
+        temp=temp->next;
+    }
+}
+
+// Free memory of the array
+void freeArray(char** array){
+    int i;
+    for(i=0; i<BUFFER_SIZE; i++){
+        free(array[i]);
+    }
+    free(array);
 }
