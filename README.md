@@ -9,6 +9,10 @@ ssh ameyasantoshgidh@login.ccs.neu.edu
 
 I've developed a Mini Shell in C, a command-line interface inspired by popular shells like Bash. This Mini Shell project serves as a bridge between users and the operating system, allowing them to execute various commands. It's a versatile and expandable project that can be used as a foundation for further development.
 
+## Image
+![linux](https://github.com/ameyagidh/Linux-Shell/assets/65457905/491d61bc-5ffb-4efb-9531-9aa85887f418)
+
+
 ## Features
 
 Here's an overview of the key features of this Mini Shell:
