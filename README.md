@@ -11,6 +11,7 @@ ssh ameyasantoshgidh@login.ccs.neu.edu
 2. cd Assignment_6
 3. cd part1
 4. clang -o prog shell.c
+5. Congratulations you are now in the minishell
 
 ## Introduction
 
