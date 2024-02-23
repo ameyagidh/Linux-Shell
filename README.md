@@ -5,6 +5,13 @@ Youtube Video link https://youtu.be/p4SxIsuDCMs
 
 ssh ameyasantoshgidh@login.ccs.neu.edu
 
+## How to Run this program locally
+
+1. Install Clang compiler
+2. cd Assignment_6
+3. cd part1
+4. clang -o prog shell.c
+
 ## Introduction
 
 I've developed a Mini Shell in C, a command-line interface inspired by popular shells like Bash. This Mini Shell project serves as a bridge between users and the operating system, allowing them to execute various commands. It's a versatile and expandable project that can be used as a foundation for further development.
