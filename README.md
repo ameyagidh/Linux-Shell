@@ -19,7 +19,8 @@ I've developed a Mini Shell in C, a command-line interface inspired by popular s
 
 ## Images
 
-<img width="572" alt="Screenshot 2024-02-23 at 2 13 30 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/5258c975-de50-4cd1-a81c-3e8ba1580a0a">
+<img width="568" alt="Screenshot 2024-02-23 at 2 22 02 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/9017a528-a24b-4e88-9990-e0edba185093">
+
 
 #### Clear command
 <img width="572" alt="Screenshot 2024-02-23 at 2 14 05 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/606a2056-e7b8-4717-915e-db117f5a287f">
