@@ -20,10 +20,21 @@ I've developed a Mini Shell in C, a command-line interface inspired by popular s
 ## Images
 
 <img width="572" alt="Screenshot 2024-02-23 at 2 13 30 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/5258c975-de50-4cd1-a81c-3e8ba1580a0a">
+
+#### Clear command
 <img width="572" alt="Screenshot 2024-02-23 at 2 14 05 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/606a2056-e7b8-4717-915e-db117f5a287f">
+
+#### cat command 
 <img width="564" alt="Screenshot 2024-02-23 at 2 14 28 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/50b287c9-aca5-4f4d-a7df-602a2b7cdc13">
+
+#### history command shows the commands used
 <img width="568" alt="Screenshot 2024-02-23 at 2 16 23 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/e603d8d8-663f-4d92-a27a-97840dbb74e7">
+
+#### nl command counts the number of lines in the file shell.c
 <img width="570" alt="Screenshot 2024-02-23 at 2 16 53 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/ab6a0eed-7c23-463e-bbb3-04bf27eaec47">
+
+#### exit
+<img width="566" alt="Screenshot 2024-02-23 at 2 21 17 AM" src="https://github.com/ameyagidh/Linux-Shell/assets/65457905/4e637d5e-6df9-4faf-a91e-33527b9af915">
 
 ## Features
 
